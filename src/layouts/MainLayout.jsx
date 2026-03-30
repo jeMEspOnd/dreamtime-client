@@ -1,15 +1,26 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { clearAuth, getUser, isAuthenticated } from '../utils/Auth';
+import api from '../services/api';
 
 function MainLayout() {
   const navigate = useNavigate();
   const loggedIn = isAuthenticated();
   const user = getUser();
 
-  const handleLogout = () => {
+ const handleLogout = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken) {
+      await api.post('/auth/logout', { refreshToken });
+    }
+  } catch (err) {
+    console.error('Logout error', err);
+  } finally {
     clearAuth();
     navigate('/login');
-  };
+  }
+};
   console.log(user);
   return (
     <div className="app-shell">
@@ -40,6 +51,7 @@ function MainLayout() {
                 Logout
               </button>
             )}
+            {loggedIn && <Link to="/change-password">Change Password</Link>}
           </nav>
         </div>
       </header>

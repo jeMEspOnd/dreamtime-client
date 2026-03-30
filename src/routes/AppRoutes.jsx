@@ -7,6 +7,7 @@ import RegisterPage from '../pages/RegisterPage';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminPage from '../pages/AdminPage';
 import AdminRoute from '../components/AdminRoute';
+import ChangePasswordPage from '../pages/ChangePasswordPage';
 
 function AppRoutes() {
   return (
@@ -35,6 +36,14 @@ function AppRoutes() {
             }
           />
         </Route>
+        <Route
+  path="/change-password"
+  element={
+    <ProtectedRoute>
+      <ChangePasswordPage />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );
