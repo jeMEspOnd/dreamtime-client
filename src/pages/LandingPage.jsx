@@ -59,8 +59,16 @@ function LandingPage() {
     setLocationLoading(true);
     setLocationError('');
 
-    navigator.geolocation.getCurrentPosition(
-  async (position) => {
+   const requestAndStoreLocation = () => {
+  if (!navigator.geolocation) {
+    setLocationError('Geolocation is not supported in this browser.');
+    return;
+  }
+
+  setLocationLoading(true);
+  setLocationError('');
+
+  const handleSuccess = async (position) => {
     try {
       const { latitude, longitude } = position.coords;
 
@@ -80,31 +88,47 @@ function LandingPage() {
       localStorage.setItem('portfolio_user_location', JSON.stringify(locationPayload));
       setLocationInfo(locationPayload);
       setLocationError('');
-    } catch (error) {
+    } catch {
       setLocationError('Location found, but address lookup failed.');
     } finally {
       setLocationLoading(false);
     }
-  },
-  (error) => {
-    setLocationLoading(false);
+  };
 
-    if (error.code === 1) {
-      setLocationError('Location permission was denied.');
-    } else if (error.code === 2) {
-      setLocationError('Location is unavailable. Please turn on GPS or mobile location.');
-    } else if (error.code === 3) {
-      setLocationError('Location request timed out. Please try again.');
-    } else {
-      setLocationError('Unable to get location.');
+  const handleError = () => {
+    navigator.geolocation.getCurrentPosition(
+      handleSuccess,
+      (fallbackError) => {
+        setLocationLoading(false);
+
+        if (fallbackError.code === 1) {
+          setLocationError('Location permission was denied.');
+        } else if (fallbackError.code === 2) {
+          setLocationError('Location is unavailable. Please turn on GPS or mobile location.');
+        } else if (fallbackError.code === 3) {
+          setLocationError('Location request timed out. Please try again.');
+        } else {
+          setLocationError('Unable to get location.');
+        }
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 15000,
+        maximumAge: 60000,
+      }
+    );
+  };
+
+  navigator.geolocation.getCurrentPosition(
+    handleSuccess,
+    handleError,
+    {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0,
     }
-  },
-  {
-    enableHighAccuracy: true,
-    timeout: 20000,
-    maximumAge: 0,
-  }
-);
+  );
+};
   };
 
   const handleFeedbackChange = (e) => {
