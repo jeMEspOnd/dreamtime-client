@@ -1,19 +1,31 @@
 import axios from 'axios';
-import { getToken, getRefreshToken, setToken } from '../utils/Auth';
+import {
+  getRefreshToken,
+  getToken,
+  setRefreshToken,
+  setToken,
+  clearAuth,
+} from '../utils/Auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
-console.log('api',api);
-api.interceptors.request.use((config) => {
-  const token = getToken();
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
 
-  return config;
-});
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 api.interceptors.response.use(
   (response) => response,
@@ -26,20 +38,41 @@ api.interceptors.response.use(
       try {
         const refreshToken = getRefreshToken();
 
+        if (!refreshToken) {
+          clearAuth();
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+
         const response = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
-          refreshToken
+          { refreshToken },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
         );
 
-        const newToken = response.data.data.token;
+        const newToken = response.data?.data?.token;
+        const newRefreshToken = response.data?.data?.refreshToken;
+
+        if (!newToken || !newRefreshToken) {
+          clearAuth();
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
 
         setToken(newToken);
+        setRefreshToken(newRefreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         return api(originalRequest);
-      } catch (err) {
+      } catch (refreshError) {
+        clearAuth();
         window.location.href = '/login';
+        return Promise.reject(refreshError);
       }
     }
 
