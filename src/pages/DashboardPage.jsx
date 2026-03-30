@@ -59,7 +59,7 @@ function DashboardPage() {
 
         {!loading && !error && profile && (
           <div className="profile-grid">
-            <div className="profile-item">
+            <div className="profile-item" hidden>
               <span>User ID</span>
               <strong>{profile.userId}</strong>
             </div>
