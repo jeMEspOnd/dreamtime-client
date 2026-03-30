@@ -20,6 +20,7 @@ function LandingPage() {
   const [locationInfo, setLocationInfo] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState('');
+   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedFeedback = localStorage.getItem(FEEDBACK_KEY);
@@ -129,7 +130,7 @@ function LandingPage() {
     toast.error('Name and remarks are required.');
     return;
   }
-
+setLoading(true);
   try {
     await api.post('/feedback/', {
       name: feedbackForm.name.trim(),
@@ -138,7 +139,7 @@ function LandingPage() {
       locationAddress: locationInfo?.address || null,
     });
 
-    toast.success('Feedback submitted successfully.');
+    toast.success('Feedback submitted To Linkan successfully.');
 
     setFeedbackForm({
       name: '',
@@ -149,6 +150,9 @@ function LandingPage() {
     const message =
       error.response?.data?.message || 'Failed to submit feedback.';
     toast.error(message);
+  }finally
+  {
+    setLoading(true);
   }
 };
 
@@ -406,8 +410,8 @@ function LandingPage() {
               />
             </div>
 
-            <button type="submit" className="hero-main-btn feedback-submit-btn">
-              Submit Feedback
+            <button type="submit" className="hero-main-btn feedback-submit-btn" disabled={loading}>
+             {loading?'Submitting..': 'Submit Feedback'}
             </button>
           </form>
 
