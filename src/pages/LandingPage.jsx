@@ -60,59 +60,51 @@ function LandingPage() {
     setLocationError('');
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
+  async (position) => {
+    try {
+      const { latitude, longitude } = position.coords;
 
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
-            {
-              headers: {
-                Accept: 'application/json',
-              },
-            }
-          );
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+      );
 
-          if (!response.ok) {
-            throw new Error('Failed to fetch address.');
-          }
+      const data = await response.json();
 
-          const data = await response.json();
+      const locationPayload = {
+        latitude,
+        longitude,
+        address: data.display_name || 'Address not found',
+        savedAt: new Date().toISOString(),
+      };
 
-          const locationPayload = {
-            latitude,
-            longitude,
-            address: data.display_name || 'Address not found',
-            savedAt: new Date().toISOString(),
-          };
+      localStorage.setItem('portfolio_user_location', JSON.stringify(locationPayload));
+      setLocationInfo(locationPayload);
+      setLocationError('');
+    } catch (error) {
+      setLocationError('Location found, but address lookup failed.');
+    } finally {
+      setLocationLoading(false);
+    }
+  },
+  (error) => {
+    setLocationLoading(false);
 
-          localStorage.setItem(LOCATION_KEY, JSON.stringify(locationPayload));
-          setLocationInfo(locationPayload);
-        } catch (error) {
-          setLocationError('Location found, but address lookup failed.');
-        } finally {
-          setLocationLoading(false);
-        }
-      },
-      (error) => {
-        setLocationLoading(false);
-
-        if (error.code === 1) {
-          setLocationError('Location permission was denied.');
-        } else if (error.code === 2) {
-          setLocationError('Location is unavailable.');
-        } else if (error.code === 3) {
-          setLocationError('Location request timed out.');
-        } else {
-          setLocationError('Unable to get location.');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0,
-      }
-    );
+    if (error.code === 1) {
+      setLocationError('Location permission was denied.');
+    } else if (error.code === 2) {
+      setLocationError('Location is unavailable. Please turn on GPS or mobile location.');
+    } else if (error.code === 3) {
+      setLocationError('Location request timed out. Please try again.');
+    } else {
+      setLocationError('Unable to get location.');
+    }
+  },
+  {
+    enableHighAccuracy: true,
+    timeout: 20000,
+    maximumAge: 0,
+  }
+);
   };
 
   const handleFeedbackChange = (e) => {
