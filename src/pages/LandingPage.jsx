@@ -73,7 +73,7 @@ function LandingPage() {
               </div>
 
               <div className="profile-intro">
-                <h3>Linkan</h3>
+                <h3>Jyotiranjan sahoo</h3>
                 <p>Full Stack Developer</p>
               </div>
 
