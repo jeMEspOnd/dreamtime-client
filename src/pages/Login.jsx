@@ -93,11 +93,15 @@ function LoginPage() {
       toast.success('Login successful.');
       navigate('/dashboard');
     } catch (err) {
-      const message =
-        err.response?.data?.message || 'Login failed. Please check your credentials.';
+  console.log('Login error:', err);
 
-      toast.error(message);
-    } finally {
+  const message =
+    err.response?.data?.message ||
+    err.response?.data?.error ||
+    'Login failed. Please check your credentials.';
+
+  toast.error(message);
+} finally {
       setLoading(false);
     }
   };

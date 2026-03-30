@@ -32,6 +32,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    const requestUrl = originalRequest?.url || '';
+
+    const isAuthRequest =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/register') ||
+      requestUrl.includes('/auth/refresh') ||
+      requestUrl.includes('/auth/logout');
+
+    if (isAuthRequest) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -40,7 +52,6 @@ api.interceptors.response.use(
 
         if (!refreshToken) {
           clearAuth();
-          window.location.href = '/login';
           return Promise.reject(error);
         }
 
@@ -59,7 +70,6 @@ api.interceptors.response.use(
 
         if (!newToken || !newRefreshToken) {
           clearAuth();
-          window.location.href = '/login';
           return Promise.reject(error);
         }
 
@@ -71,7 +81,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         clearAuth();
-        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
