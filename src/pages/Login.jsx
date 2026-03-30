@@ -1,12 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
-import { setToken, setUser } from '../utils/Auth';
+import { setToken, setUser,isAuthenticated } from '../utils/Auth';
 import { setRefreshToken } from '../utils/Auth';
 
 function LoginPage() {
   const navigate = useNavigate();
+
+  useEffect(()=>
+  {
+    if(isAuthenticated())
+    {
+      navigate('/dashboard');
+    }
+  },[navigate]);
 
   const [formData, setFormData] = useState({
     email: '',

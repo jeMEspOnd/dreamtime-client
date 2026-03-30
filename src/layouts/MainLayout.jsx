@@ -33,7 +33,10 @@ function MainLayout() {
           <nav className="nav-links">
             <Link to="/">Home</Link>
 
-            {!loggedIn && <Link to="/register">Register</Link>}
+            {loggedIn && user?.role === 'Admin' && (
+ <Link to="/register">Register</Link>  // ADDED FOR ONLY ADMIN CAN CREATE USER
+)}
+   
             {!loggedIn && <Link to="/login">Login</Link>}
 
             {loggedIn && <Link to="/dashboard">Dashboard</Link>}

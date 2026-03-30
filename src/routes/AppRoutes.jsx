@@ -16,7 +16,7 @@ function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          {/* <Route path="/register" element={<RegisterPage />} /> */} /* Commented For Its only appear in admin login */
 
           <Route
             path="/dashboard"
