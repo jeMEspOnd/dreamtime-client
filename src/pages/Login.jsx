@@ -147,7 +147,7 @@ function LoginPage() {
         </form>
 
         <p className="form-footer">
-          Don&apos;t have an account? Ask Admin To Create one
+          Don&apos;t have an account? Ask Linkan To Create one
         </p>
       </div>
     </section>
