@@ -152,7 +152,7 @@ setLoading(true);
     toast.error(message);
   }finally
   {
-    setLoading(true);
+    setLoading(false);
   }
 };
 
