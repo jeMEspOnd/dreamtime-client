@@ -16,21 +16,13 @@ function LandingPage() {
 });
 
 
-  const [feedbackList, setFeedbackList] = useState([]);
   const [locationInfo, setLocationInfo] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState('');
    const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedFeedback = localStorage.getItem(FEEDBACK_KEY);
-    if (savedFeedback) {
-      try {
-        setFeedbackList(JSON.parse(savedFeedback));
-      } catch {
-        setFeedbackList([]);
-      }
-    }
+   
 
     const savedLocation = localStorage.getItem(LOCATION_KEY);
     if (savedLocation) {
@@ -44,12 +36,7 @@ function LandingPage() {
     requestAndStoreLocation();
   }, []);
 
-  const averageRating = useMemo(() => {
-    if (!feedbackList.length) return 0;
-    const total = feedbackList.reduce((sum, item) => sum + Number(item.rating || 0), 0);
-    return (total / feedbackList.length).toFixed(1);
-  }, [feedbackList]);
-
+ 
   const requestAndStoreLocation = () => {
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported in this browser.');
@@ -183,7 +170,7 @@ setLoading(true);
           <div className="hero-badge-v3">FULL STACK DEVELOPER • PORTFOLIO • CLOUD APP</div>
 
           <h1 className="hero-title-v3">
-            Hi, I’m <span>Linkan</span>
+            Hi, I’m <span>Jyotiranjan</span>
             <br />
             I create secure and modern full stack applications.
           </h1>
@@ -375,17 +362,7 @@ setLoading(true);
             </p>
           </div>
 
-          <div className="feedback-summary-v3">
-            <div>
-              <strong>{feedbackList.length}</strong>
-              <span>Total Feedback</span>
-            </div>
-            <div>
-              <strong>{averageRating || '0.0'}</strong>
-              <span>Average Rating</span>
-            </div>
-          </div>
-
+         
           <form className="feedback-form-v3" onSubmit={handleFeedbackSubmit}>
             <div className="feedback-field-v3">
               <label>Name</label>
@@ -431,22 +408,7 @@ setLoading(true);
             </button>
           </form>
 
-          <div className="feedback-list-v3">
-            {feedbackList.length === 0 && (
-              <p className="muted-text-v3">No feedback yet. Be the first to add one.</p>
-            )}
-
-            {feedbackList.map((item) => (
-              <div key={item.id} className="feedback-item-v3">
-                <div className="feedback-item-head">
-                  <strong>{item.name}</strong>
-                  <span>{'★'.repeat(item.rating)}</span>
-                </div>
-                <p>{item.remarks}</p>
-                <small>{item.createdAt}</small>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </div>
     </section>
