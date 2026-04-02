@@ -8,6 +8,10 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import AdminPage from '../pages/AdminPage';
 import AdminRoute from '../components/AdminRoute';
 import ChangePasswordPage from '../pages/ChangePasswordPage';
+import AddModule from '../pages/addModule';
+import AddProject from '../pages/AddProject';
+import AddSubModule from '../pages/addSubModule';
+
 
 function AppRoutes() {
   return (
@@ -18,6 +22,18 @@ function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
          <Route path="/register" element={<ProtectedRoute>
           <RegisterPage />
+          </ProtectedRoute>} 
+          /> 
+            <Route path="/addModule" element={<ProtectedRoute>
+          <AddModule />
+          </ProtectedRoute>} 
+          /> 
+             <Route path="/addSubModule" element={<ProtectedRoute>
+          <AddSubModule />
+          </ProtectedRoute>} 
+          /> 
+             <Route path="/addProject" element={<ProtectedRoute>
+          <AddProject />
           </ProtectedRoute>} 
           /> 
           <Route
