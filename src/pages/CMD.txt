@@ -1,0 +1,8 @@
+For entity framework =>
+
+dotnet clean "DreamTimeApp.Api.csproj"
+dotnet build "DreamTimeApp.Api.csproj"
+dotnet run --project "DreamTimeApp.Api.csproj"
+
+dotnet ef migrations add {modulename} --project "DreamTimeApp.Api.csproj" --startup-project "DreamTimeApp.Api.csproj"
+dotnet ef database update --project "DreamTimeApp.Api.csproj" --startup-project "DreamTimeApp.Api.csproj"
