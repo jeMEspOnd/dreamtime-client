@@ -240,11 +240,11 @@ function MainLayout() {
               {profileMenuOpen && (
                 <div className="profile-dropdown">
                   <div className="profile-dropdown-header">
-                    <strong>{user?.fullName || 'User'}</strong>
+                    <strong>{user?.fullName || 'User'} <span>{'('+user?.role+')'}</span> </strong>
                     <small>{user?.email || ''}</small>
                   </div>
 
-                  <Link to="/dashboard/profile-view" className="profile-dropdown-item">
+                  <Link to="/profile-view" className="profile-dropdown-item">
                     View Profile
                   </Link>
                   <Link to="/" className="profile-dropdown-item">Home</Link>

@@ -11,6 +11,7 @@ import ChangePasswordPage from '../pages/ChangePasswordPage';
 import AddModule from '../pages/addModule';
 import AddProject from '../pages/AddProject';
 import AddSubModule from '../pages/addSubModule';
+import ProfileView from '../pages/profileView';
 
 
 function AppRoutes() {
@@ -44,7 +45,14 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
-
+  <Route
+            path="/profile-view"
+            element={
+              <ProtectedRoute>
+                <ProfileView />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -165,34 +165,28 @@ function AddProject() {
     e.preventDefault();
     setSuccessMsg('');
 
-     const errors = validateForm();
-        setErrors(errors);
-    
-        if (Object.keys(errors).length > 0) {
-          toast.error('Please fix the highlighted fields.');
-          return;
-        }
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      toast.error('Please fix the highlighted fields.');
+      return;
+    }
 
     const payload = {
       ...formData,
       budget: Number(formData.budget),
       teamSize: Number(formData.teamSize),
       modules: formData.modules.includes('Other')
-        ? [...formData.modules.filter((m) => m !== 'Other'), formData.otherModule]
+        ? [...formData.modules.filter((m) => m !== 'Other'), formData.otherModule].filter(Boolean)
         : formData.modules
     };
 
     try {
       setLoading(true);
-
-      // Demo API call - replace endpoint with your real API
       await api.post('/Master', payload);
 
-        toast.success('Add Project successful. Redirecting to login...');
-
-            setTimeout(() => {
-                navigate('/AddProject');
-            }, 1500);
+      toast.success('Project created successfully!');
+      
+      // Reset form and redirect to dashboard
       setFormData({
         projectName: '',
         projectCode: '',
@@ -210,15 +204,14 @@ function AddProject() {
         description: '',
         remarks: ''
       });
-
       setErrors({});
 
-      // optional redirect
-      // navigate('/projects');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } catch (error) {
       console.error('Insert project error:', error);
-      setSuccessMsg('');
-      alert(error?.response?.data?.message || 'Failed to add project');
+      toast.error(error?.response?.data?.message || 'Failed to add project');
     } finally {
       setLoading(false);
     }
@@ -232,144 +225,169 @@ function AddProject() {
           <p>Enter project details and select required modules.</p>
         </div>
 
-        {successMsg && <div className="success-text">{successMsg}</div>}
+        {successMsg && (
+          <div className="success-banner">
+            <div>✓</div>
+            <div>
+              <strong>Project added successfully!</strong>
+              <br />
+              <Link to="/dashboard">View Dashboard</Link>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="project-form">
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Project Name <span className="req">*</span></label>
-              <input
-                type="text"
-                name="projectName"
-                value={formData.projectName}
-                onChange={handleChange}
-                placeholder="Enter project name"
-              />
-              {errors.projectName && <small className="field-error">{errors.projectName}</small>}
-            </div>
+          {/* Basic Information */}
+          <div className="project-form-section">
+            <h3 className="project-section-title">Basic Information</h3>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Project Name <span className="req">*</span></label>
+                <input
+                  type="text"
+                  name="projectName"
+                  value={formData.projectName}
+                  onChange={handleChange}
+                  placeholder="Enter project name"
+                />
+                {errors.projectName && <small className="field-error">{errors.projectName}</small>}
+              </div>
 
-            <div className="form-group">
-              <label>Project Code <span className="req">*</span></label>
-              <input
-                type="text"
-                name="projectCode"
-                value={formData.projectCode}
-                onChange={handleChange}
-                placeholder="Ex: PROJ001"
-              />
-              {errors.projectCode && <small className="field-error">{errors.projectCode}</small>}
-            </div>
+              <div className="form-group">
+                <label>Project Code <span className="req">*</span></label>
+                <input
+                  type="text"
+                  name="projectCode"
+                  value={formData.projectCode}
+                  onChange={handleChange}
+                  placeholder="Ex: PROJ001"
+                />
+                {errors.projectCode && <small className="field-error">{errors.projectCode}</small>}
+              </div>
 
-            <div className="form-group">
-              <label>Client Name <span className="req">*</span></label>
-              <input
-                type="text"
-                name="clientName"
-                value={formData.clientName}
-                onChange={handleChange}
-                placeholder="Enter client name"
-              />
-              {errors.clientName && <small className="field-error">{errors.clientName}</small>}
-            </div>
+              <div className="form-group">
+                <label>Client Name <span className="req">*</span></label>
+                <input
+                  type="text"
+                  name="clientName"
+                  value={formData.clientName}
+                  onChange={handleChange}
+                  placeholder="Enter client name"
+                />
+                {errors.clientName && <small className="field-error">{errors.clientName}</small>}
+              </div>
 
-            <div className="form-group">
-              <label>Project Manager <span className="req">*</span></label>
-              <input
-                type="text"
-                name="projectManager"
-                value={formData.projectManager}
-                onChange={handleChange}
-                placeholder="Enter project manager name"
-              />
-              {errors.projectManager && <small className="field-error">{errors.projectManager}</small>}
+              <div className="form-group">
+                <label>Project Manager <span className="req">*</span></label>
+                <input
+                  type="text"
+                  name="projectManager"
+                  value={formData.projectManager}
+                  onChange={handleChange}
+                  placeholder="Enter project manager name"
+                />
+                {errors.projectManager && <small className="field-error">{errors.projectManager}</small>}
+              </div>
             </div>
+          </div>
 
-            <div className="form-group">
-              <label>Start Date <span className="req">*</span></label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-              />
-              {errors.startDate && <small className="field-error">{errors.startDate}</small>}
+          {/* Timeline & Financials */}
+          <div className="project-form-section">
+            <h3 className="project-section-title">Timeline & Financials</h3>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Start Date <span className="req">*</span></label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                />
+                {errors.startDate && <small className="field-error">{errors.startDate}</small>}
+              </div>
+
+              <div className="form-group">
+                <label>End Date <span className="req">*</span></label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                />
+                {errors.endDate && <small className="field-error">{errors.endDate}</small>}
+              </div>
+
+              <div className="form-group">
+                <label>Budget <span className="req">*</span></label>
+                <input
+                  type="number"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="Enter budget"
+                />
+                {errors.budget && <small className="field-error">{errors.budget}</small>}
+              </div>
+
+              <div className="form-group">
+                <label>Priority <span className="req">*</span></label>
+                <select
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                >
+                  <option value="">Select priority</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Critical">Critical</option>
+                </select>
+                {errors.priority && <small className="field-error">{errors.priority}</small>}
+              </div>
             </div>
+          </div>
 
-            <div className="form-group">
-              <label>End Date <span className="req">*</span></label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-              />
-              {errors.endDate && <small className="field-error">{errors.endDate}</small>}
-            </div>
+          {/* Team & Tech */}
+          <div className="project-form-section">
+            <h3 className="project-section-title">Team & Technology</h3>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
 
-            <div className="form-group">
-              <label>Budget <span className="req">*</span></label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget}
-                onChange={handleChange}
-                placeholder="Enter budget"
-              />
-              {errors.budget && <small className="field-error">{errors.budget}</small>}
-            </div>
+              <div className="form-group">
+                <label>Technology Stack <span className="req">*</span></label>
+                <input
+                  type="text"
+                  name="technology"
+                  value={formData.technology}
+                  onChange={handleChange}
+                  placeholder="Ex: React, Node.js, SQL Server"
+                />
+                {errors.technology && <small className="field-error">{errors.technology}</small>}
+              </div>
 
-            <div className="form-group">
-              <label>Priority <span className="req">*</span></label>
-              <select
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-              >
-                <option value="">Select priority</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
-              </select>
-              {errors.priority && <small className="field-error">{errors.priority}</small>}
-            </div>
-
-            <div className="form-group">
-              <label>Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-                <option value="On Hold">On Hold</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Technology Stack <span className="req">*</span></label>
-              <input
-                type="text"
-                name="technology"
-                value={formData.technology}
-                onChange={handleChange}
-                placeholder="Ex: React, Node.js, SQL Server"
-              />
-              {errors.technology && <small className="field-error">{errors.technology}</small>}
-            </div>
-
-            <div className="form-group">
-              <label>Team Size <span className="req">*</span></label>
-              <input
-                type="number"
-                name="teamSize"
-                value={formData.teamSize}
-                onChange={handleChange}
-                placeholder="Enter team size"
-              />
-              {errors.teamSize && <small className="field-error">{errors.teamSize}</small>}
+              <div className="form-group">
+                <label>Team Size <span className="req">*</span></label>
+                <input
+                  type="number"
+                  name="teamSize"
+                  value={formData.teamSize}
+                  onChange={handleChange}
+                  placeholder="Enter team size"
+                />
+                {errors.teamSize && <small className="field-error">{errors.teamSize}</small>}
+              </div>
             </div>
           </div>
 
