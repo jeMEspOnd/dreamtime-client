@@ -12,6 +12,7 @@ import AddModule from '../pages/addModule';
 import AddProject from '../pages/AddProject';
 import AddSubModule from '../pages/addSubModule';
 import ProfileView from '../pages/profileView';
+import ProjectDetail from '../pages/ProjectDetail';
 
 
 function AppRoutes() {
@@ -37,11 +38,19 @@ function AppRoutes() {
           <AddProject />
           </ProtectedRoute>} 
           /> 
-          <Route
+<Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/project/:id"
+            element={
+              <ProtectedRoute>
+                <ProjectDetail />
               </ProtectedRoute>
             }
           />

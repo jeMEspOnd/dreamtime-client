@@ -141,7 +141,7 @@ function DashboardPage() {
             ) : (
               <div className="projects-grid">
                 {projects.map((project) => (
-                  <div key={project.projectId || project.projectCode} className="project-card">
+                  <Link key={project.projectID|| project.projectCode} to={`/project/${project.projectID|| project.projectCode}`} className="project-card" style={{textDecoration: 'none'}}>
                     <h4 className="project-name">{project.projectName}</h4>
 
                     <div className="project-meta">
@@ -188,7 +188,7 @@ function DashboardPage() {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
