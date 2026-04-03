@@ -1397,7 +1397,7 @@ body {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  color: var(--text);
+  color: rgb(242, 234, 234);
   text-decoration: none;
   background: transparent;
   border: none;
