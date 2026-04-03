@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import { useEffect, useRef, useState } from 'react';
 import { clearAuth, getUser, isAuthenticated } from '../utils/Auth';
 import api from '../services/api';
@@ -13,6 +14,7 @@ function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState('');
+  const { theme, toggleTheme } = useTheme();
 
   const sidebarRef = useRef(null);
   const sidebarToggleRef = useRef(null);
@@ -94,7 +96,7 @@ function MainLayout() {
 
             <ul className="sidebar-menu">
               <li>
-                <Link to="/dashboard" className="menu-link">
+                <Link to="/dashboard" className={`menu-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>
                   <span className="menu-icon">🏠</span>
                   <span>Dashboard</span>
                 </Link>
@@ -248,6 +250,12 @@ function MainLayout() {
                     View Profile
                   </Link>
                   <Link to="/" className="profile-dropdown-item">Home</Link>
+                  <button
+                    className="profile-dropdown-item"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                  </button>
                   <button
                     className="profile-dropdown-item logout-dropdown-btn"
                     onClick={handleLogout}

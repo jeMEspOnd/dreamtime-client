@@ -13,7 +13,8 @@ function DashboardPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [projectsLoading, setProjectsLoading] = useState(true);
-  const [projectsError, setProjectsError] = useState('');
+  const [projectsError, setProjectsError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Compute dashboard stats
   const stats = {
@@ -25,31 +26,32 @@ function DashboardPage() {
 
   const activePercentage = stats.totalProjects > 0 ? Math.round((stats.activeProjects / stats.totalProjects) * 100) : 0;
 
-  useEffect(() => {
+  const fetchData = async () => {
+    setProjectsLoading(true);
+    setProjectsError(null);
+    try {
+      const response = await api.get('/Master/Project');
+      console.log('Project API Response:', response);
 
-    const fetchData = async () => {
-      try {
-        const response = await api.get('/Master/Project');
-        console.log('Project API Response:', response);
-
-        setProjects(response.data.data || []);
-      } catch (err) {
-        if (err.response?.status === 401) {
-          clearAuth();
-          toast.error('Session expired. Please login again.');
-          navigate('/login');
-          return;
-        }
-
-        setProjectsError(err.response?.data?.message || 'Failed to load projects.');
-      } finally {
-        setProjectsLoading(false);
-        setLoading(false);
+      setProjects(response.data.data || []);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        clearAuth();
+        toast.error('Session expired. Please login again.');
+        navigate('/login');
+        return;
       }
-    };
 
+      setProjectsError(err.response?.data?.message || 'Failed to load projects.');
+    } finally {
+      setProjectsLoading(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [navigate]);
+  }, [navigate, retryCount]);
 
   return (
     <div className="dashboard-page-shell">
@@ -63,30 +65,39 @@ function DashboardPage() {
           </div>
         </div>
 
-        {!projectsLoading && !projectsError && (
-          <section className="dashboard-section stats-section">
-            <div className="dashboard-card">
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <div className="stat-number">{stats.totalProjects}</div>
-                  <div className="stat-label">Total Projects</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">{stats.activeProjects} <span className="stat-change">({activePercentage}%)</span></div>
-                  <div className="stat-label">Active Projects</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">₹{stats.totalBudget.toLocaleString()}</div>
-                  <div className="stat-label">Total Budget</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-number">₹{stats.avgBudget.toLocaleString()}</div>
-                  <div className="stat-label">Avg Budget</div>
-                </div>
-              </div>
+        <section className="dashboard-section stats-section">
+          <div className="dashboard-card">
+            <div className="stats-grid">
+              {projectsLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={`stat-sk-${i}`} className="stat-card skeleton-shimmer">
+                    <div className="skeleton-line skeleton-line-lg"></div>
+                    <div className="skeleton-line skeleton-line-sm"></div>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="stat-card">
+                    <div className="stat-number">{stats.totalProjects}</div>
+                    <div className="stat-label">Total Projects</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">{stats.activeProjects} <span className="stat-change">({activePercentage}%)</span></div>
+                    <div className="stat-label">Active Projects</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">₹{stats.totalBudget.toLocaleString()}</div>
+                    <div className="stat-label">Total Budget</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">₹{stats.avgBudget.toLocaleString()}</div>
+                    <div className="stat-label">Avg Budget</div>
+                  </div>
+                </>
+              )}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         <section className="dashboard-section projects-section">
 
@@ -94,16 +105,40 @@ function DashboardPage() {
           <div className="dashboard-card">
             <h3 className="projects-title">Your Projects</h3>
 
-            {projectsLoading && <LoadingSpinner text="Loading your projects..." />}
-            {projectsError && <p className="error-text">{projectsError}</p>}
-
-            {!projectsLoading && !projectsError && projects.length === 0 && (
+            {projectsLoading ? (
+              <>
+                <LoadingSpinner text="Loading your projects..." />
+                <div className="projects-grid">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={`proj-sk-${i}`} className="project-card skeleton-shimmer">
+                      <div className="skeleton-line skeleton-line-title"></div>
+                      <div className="skeleton-line skeleton-line-md" style={{width: '70%'}}></div>
+                      <div className="skeleton-grid">
+                        <div className="skeleton-line skeleton-line-sm"></div>
+                        <div className="skeleton-line skeleton-line-sm" style={{width: '80%'}}></div>
+                      </div>
+                      <div className="skeleton-line skeleton-line-md" style={{width: '50%'}}></div>
+                      <div className="skeleton-tags">
+                        <div className="skeleton-tag"></div>
+                        <div className="skeleton-tag"></div>
+                        <div className="skeleton-tag"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : projectsError ? (
+              <div className="error-box">
+                <p className="error-text">{projectsError}</p>
+                <button onClick={() => { fetchData(); setRetryCount(c => c + 1); }} className="retry-btn">
+                  Retry
+                </button>
+              </div>
+            ) : projects.length === 0 ? (
               <p style={{ color: '#64748b', textAlign: 'center', padding: '40px' }}>
                 No projects found. <Link to="/AddProject">Add your first project</Link>
               </p>
-            )}
-
-            {!projectsLoading && !projectsError && projects.length > 0 && (
+            ) : (
               <div className="projects-grid">
                 {projects.map((project) => (
                   <div key={project.projectId || project.projectCode} className="project-card">
